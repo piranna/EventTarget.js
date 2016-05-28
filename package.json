@@ -16,6 +16,7 @@
     "W3C"
   ],
   "author": "Mr. Doob (http://mrdoob.com)",
+  "contributors": ["Jesús Leganés Combarro <piranna@gmail.com>", "Brett Zamir"],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/ShareIt-project/EventTarget.js/issues"

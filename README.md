@@ -1,38 +1,32 @@
-eventtarget.js
-========
+# eventdispatcher.js
 
-#### JavaScript events for custom objects ####
+JavaScript events for custom objects
 
-### Usage ###
+## Usage
 
 ```html
 <script src="EventTarget.js"></script>
 <script>
 
-	// Applying EventTarget to custom object
+// Adding events to custom object
 
-	var Car = function () {
+var Car = function () {
+  this.start = function () {
+    this.dispatchEvent({type: 'start', message: 'vroom vroom!'});
+  };
+};
 
-		EventTarget.call( this );
+Object.assign(Car.prototype, EventTarget.prototype);
 
-		this.start = function () {
+// Using events
 
-			this.dispatchEvent( { type: 'started', foo: 'bar' } );
+var car = new Car();
 
-		};
+car.addEventListener('start', function (event) {
+  alert(event.message);
+});
 
-	};
-
-
-	// Using events
-
-	var car = new Car();
-	car.addEventListener( 'started', function ( event ) {
-
-		alert( 'vroom vroom!' );
-
-	} );
-	car.start();
+car.start();
 
 </script>
 ```
