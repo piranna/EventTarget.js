@@ -4,6 +4,21 @@
  */
 
 
+if(typeof Event === 'undefined')
+  function Event(type, eventInitDict)
+  {
+    eventInitDict = eventInitDict || {}
+
+    Object.defineProperties(this,
+    {
+      type      : {value: type, enumerable: true}),
+      bubbles   : {value: eventInitDict.bubbles, enumerable: true}),
+      cancelable: {value: eventInitDict.cancelable, enumerable: true}),
+      composed  : {value: eventInitDict.composed, enumerable: true})
+    }
+  }
+
+
 function EventTarget()
 {
   var listeners = {};
@@ -25,34 +40,41 @@ function EventTarget()
   this.dispatchEvent = function(event)
   {
     if(event._dispatched) throw 'InvalidStateError'
-    event._dispatched = true
+    Object.defineProperty(event, '_dispatched', {value: true})
 
     var type = event.type
-    if(type == undefined || type == '') throw 'UNSPECIFIED_EVENT_TYPE_ERR'
+    if(type == null || type == '') throw 'UNSPECIFIED_EVENT_TYPE_ERR'
 
-    var listenerArray = (listeners[type] || []);
+    var listenerArray = listeners[type] || []
 
     var dummyListener = this['on' + type];
-    if(typeof dummyListener == 'function')
+    if(dummyListener instanceof Function)
       listenerArray = listenerArray.concat(dummyListener);
 
     var stopImmediatePropagation = false
 
-    // [ToDo] Use read-only properties instead of attributes when availables
-    event.cancelable = true
-    event.defaultPrevented = false
-    event.isTrusted = false
+    Object.defineProperties(event,
+    {
+      cancelable: {value: true, enumerable: true},
+      defaultPrevented: {value: false, enumerable: true},
+      isTrusted: {value: false, enumerable: true},
+      target: {value: this, enumerable: true},
+      timeStamp: {value: new Date().getTime(), enumerable: true}
+    })
+
     event.preventDefault = function()
     {
       if(this.cancelable)
-        this.defaultPrevented = true
+        Object.defineProperty(this, 'defaultPrevented', {value: true})
+    }
+    event.stopPropagation = function()
+    {
+      stopPropagation = true
     }
     event.stopImmediatePropagation = function()
     {
       stopImmediatePropagation = true
     }
-    event.target = this
-    event.timeStamp = new Date().getTime()
 
     for(var i=0,listener; listener=listenerArray[i]; i++)
     {
